@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESARP — Animated Video Explainer & Presentation</title>
+  <style>
+    :root {
+      --bg-dark: #070b12;
+      --panel-bg: #0d1524;
+      --card-bg: #141f36;
+      --border-color: #203152;
+      --text-main: #f1f5f9;
+      --text-dim: #94a3b8;
+      --cyan: #00f0ff;
+      --emerald: #10b981;
+      --crimson: #ef4444;
+      --amber: #f59e0b;
+      --purple: #a855f7;
+      --blue: #3b82f6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Top Navigation Header */
+    header {
+      background: var(--panel-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, #00f0ff22, #3b82f644);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .brand h1 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 7px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      background: #1c2b4a;
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .btn-record {
+      background: #ef444422;
+      border-color: #ef444488;
+      color: #fca5a5;
+    }
+    .btn-record.recording {
+      background: #ef4444;
+      color: #fff;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    /* Main Stage Layout */
+    .stage-container {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 140px);
+      position: relative;
+    }
+
+    /* Left Video Screen & Visual Canvas */
+    .video-viewport {
+      flex: 1.6;
+      display: flex;
+      flex-direction: column;
+      background: #05080e;
+      position: relative;
+      border-right: 1px solid var(--border-color);
+    }
+
+    /* Scene Banner inside Viewport */
+    .scene-meta-banner {
+      padding: 12px 24px;
+      background: rgba(13, 21, 36, 0.85);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 5;
+    }
+
+    .scene-title-group h2 {
+      font-size: 1.25rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .scene-num-tag {
+      background: var(--cyan);
+      color: #000;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .scene-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      margin-top: 3px;
+    }
+
+    .stage-canvas-wrap {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #stageCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Overlay HUD Elements */
+    .hud-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    /* Subtitles bar */
+    .subtitles-bar {
+      min-height: 52px;
+      padding: 8px 24px;
+      background: rgba(7, 11, 18, 0.95);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 1rem;
+      color: #38bdf8;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+      z-index: 5;
+    }
+
+    /* Right Split: Terminal & Protocol State */
+    .side-inspector {
+      flex: 1.1;
+      display: flex;
+      flex-direction: column;
+      background: var(--panel-bg);
+      overflow: hidden;
+    }
+
+    .inspector-tabs {
+      display: flex;
+      background: #090e1a;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .tab-btn {
+      padding: 10px 18px;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-right: 1px solid var(--border-color);
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: var(--card-bg);
+      color: var(--cyan);
+      border-bottom: 2px solid var(--cyan);
+    }
+
+    .inspector-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    }
+
+    .terminal-box {
+      background: #05080f;
+      border: 1px solid #1a263d;
+      border-radius: 8px;
+      padding: 14px;
+      color: #94a3b8;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      height: 100%;
+      overflow-y: auto;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+    }
+
+    .term-prompt { color: #10b981; font-weight: 700; }
+    .term-cmd { color: #f8fafc; font-weight: 600; }
+    .term-out { color: #94a3b8; }
+    .term-alert { color: #ef4444; font-weight: 700; }
+    .term-ok { color: #10b981; font-weight: 700; }
+    .term-highlight { color: #00f0ff; font-weight: 700; }
+    .term-warn { color: #f59e0b; }
+
+    /* Bottom Controller & Timeline */
+    .controls-footer {
+      height: 75px;
+      background: var(--panel-bg);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 8px 24px 10px;
+      justify-content: space-between;
+      z-index: 10;
+    }
+
+    .scrubber-bar-wrap {
+      width: 100%;
+      position: relative;
+      cursor: pointer;
+      padding: 4px 0;
+    }
+
+    .scrubber-bg {
+      width: 100%;
+      height: 6px;
+      background: #1c2b4a;
+      border-radius: 3px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .scrubber-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00f0ff, #3b82f6);
+      width: 0%;
+      border-radius: 3px;
+      transition: width 0.1s linear;
+    }
+
+    .scene-markers {
+      position: absolute;
+      top: 4px;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      pointer-events: none;
+      display: flex;
+    }
+
+    .scene-tick {
+      position: absolute;
+      width: 2px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .controls-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .playback-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .play-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--cyan);
+      color: #05080e;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      transition: transform 0.15s, background-color 0.15s;
+    }
+
+    .play-btn:hover {
+      transform: scale(1.08);
+      background: #38bdf8;
+    }
+
+    .skip-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .skip-btn:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .time-badge {
+      font-family: monospace;
+      font-size: 0.88rem;
+      color: var(--text-dim);
+      margin-left: 6px;
+    }
+
+    .playback-center {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .scene-select {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      max-width: 380px;
+    }
+
+    .playback-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .speed-select {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 5px 8px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+
+    /* Modal / Download notification */
+    .notification {
+      position: fixed;
+      top: 60px;
+      right: 24px;
+      background: var(--card-bg);
+      border: 1px solid var(--emerald);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      display: none;
+      z-index: 100;
+      font-size: 0.9rem;
+      animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="brand">
+      <span class="brand-badge">Cyber Defense Lab</span>
+      <h1>ESARP: Enhanced Secure ARP Protocol & Real-Time Detection</h1>
+    </div>
+    <div class="header-actions">
+      <button class="btn" id="toggleVoiceBtn">
+        <span id="voiceIcon">🔊</span> <span id="voiceLabel">Voiceover: ON</span>
+      </button>
+      <button class="btn btn-record" id="recordVideoBtn">
+        <span>🎥</span> <span id="recordLabel">Record Video (.webm)</span>
+      </button>
+      <button class="btn" id="fullScreenBtn">⛶ Fullscreen</button>
+    </div>
+  </header>
+
+  <!-- Stage Container -->
+  <div class="stage-container">
+    <!-- Viewport -->
+    <div class="video-viewport">
+      <div class="scene-meta-banner">
+        <div class="scene-title-group">
+          <h2>
+            <span class="scene-num-tag" id="sceneTag">SCENE 1</span>
+            <span id="sceneTitle">The Fatal Flaw in IPv4: Traditional ARP</span>
+          </h2>
+          <div class="scene-subtitle" id="sceneSubtitle">RFC 826 Stateless Operation & Blind Trust</div>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--cyan);" id="scenePhaseBadge">INITIALIZING</div>
+      </div>
+
+      <div class="stage-canvas-wrap">
+        <canvas id="stageCanvas" width="1280" height="720"></canvas>
+      </div>
+
+      <!-- Live Subtitle / Voice Caption -->
+      <div class="subtitles-bar" id="subtitleBox">
+        Welcome to the ESARP Cyber Security Project Demonstration. Press Play to begin.
+      </div>
+    </div>
+
+    <!-- Inspector & Terminal Pane -->
+    <div class="side-inspector">
+      <div class="inspector-tabs">
+        <button class="tab-btn active" data-tab="terminal">Mininet & Host CLI</button>
+        <button class="tab-btn" data-tab="detector">Real-Time Detector</button>
+        <button class="tab-btn" data-tab="packets">Raw Packet Dump</button>
+        <button class="tab-btn" data-tab="matrix">Protocol Comparison</button>
+      </div>
+
+      <div class="inspector-content">
+        <!-- Terminal Tab -->
+        <div id="tab-terminal" class="terminal-box">
+          <div id="termLogs"></div>
+        </div>
+
+        <!-- Detector Tab -->
+        <div id="tab-detector" class="terminal-box" style="display: none;">
+          <div style="color: #38bdf8; margin-bottom: 8px; font-weight: bold;">[+] REAL-TIME ARP SPOOFING DETECTOR (realtime_detector.py)</div>
+          <div style="color: #64748b; margin-bottom: 12px;">Sniffing interface: eth0 | Static map: hosts.csv | Rate limit: 20 req/s</div>
+          <div id="detectorLogs"></div>
+        </div>
+
+        <!-- Packets Tab -->
+        <div id="tab-packets" class="terminal-box" style="display: none;">
+          <div style="color: #a855f7; margin-bottom: 8px; font-weight: bold;">[#] TCPDUMP PACKET HEX TRACE (tcpdump -i any -nn -XX arp)</div>
+          <div id="packetLogs"></div>
+        </div>
+
+        <!-- Matrix Tab -->
+        <div id="tab-matrix" class="terminal-box" style="display: none;">
+          <div style="color: #10b981; font-weight: bold; margin-bottom: 10px;">[★] TRADITIONAL ARP vs ESARP DEFENSE MATRIX</div>
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.78rem; text-align: left;">
+            <tr style="border-bottom: 1px solid #334155; color: #94a3b8;">
+              <th style="padding: 6px;">Feature</th>
+              <th style="padding: 6px; color: #ef4444;">Standard ARP</th>
+              <th style="padding: 6px; color: #10b981;">ESARP Project</th>
+            </tr>
+            <tr style="border-bottom: 1px solid #1e293b;">
+              <td style="padding: 6px;">Authentication</td>
+              <td style="padding: 6px; color: #f87171;">None (Stateless)</td>
+              <td style="padding: 6px; color: #34d399;">2048-bit RSA-OAEP + Fingerprint</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #1e293b;">
+              <td style="padding: 6px;">Central Authority</td>
+              <td style="padding: 6px; color: #f87171;">None (Peer-to-Peer)</td>
+              <td style="padding: 6px; color: #34d399;">Trusted Authority (TA Node H4)</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #1e293b;">
+              <td style="padding: 6px;">Opcodes</td>
+              <td style="padding: 6px;">1 (Req), 2 (Rep)</td>
+              <td style="padding: 6px; color: #38bdf8;">Custom 5, 6, 7, 8, 9, 10</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #1e293b;">
+              <td style="padding: 6px;">Replay Protection</td>
+              <td style="padding: 6px; color: #f87171;">None</td>
+              <td style="padding: 6px; color: #34d399;">8-byte TxID & 5s Expiry Timeout</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #1e293b;">
+              <td style="padding: 6px;">Cache Policy</td>
+              <td style="padding: 6px; color: #f87171;">Accepts all unsolicited</td>
+              <td style="padding: 6px; color: #34d399;">Writes ONLY on TA [VERIFIED]</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px;">Intrusion Detection</td>
+              <td style="padding: 6px; color: #f87171;">External IDS</td>
+              <td style="padding: 6px; color: #34d399;">6-Vector Real-time Guard</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Playback Controller -->
+  <div class="controls-footer">
+    <!-- Scrubber -->
+    <div class="scrubber-bar-wrap" id="scrubberWrap">
+      <div class="scrubber-bg">
+        <div class="scrubber-fill" id="scrubberFill"></div>
+      </div>
+      <div class="scene-markers" id="sceneMarkers"></div>
+    </div>
+
+    <!-- Controls Row -->
+    <div class="controls-row">
+      <div class="playback-left">
+        <button class="skip-btn" id="prevSceneBtn" title="Previous Scene">⏮</button>
+        <button class="play-btn" id="playBtn" title="Play/Pause">▶</button>
+        <button class="skip-btn" id="nextSceneBtn" title="Next Scene">⏭</button>
+        <span class="time-badge" id="timeBadge">00:00 / 09:30</span>
+      </div>
+
+      <div class="playback-center">
+        <select class="scene-select" id="sceneDropdown"></select>
+      </div>
+
+      <div class="playback-right">
+        <span style="font-size: 0.8rem; color: var(--text-dim);">Speed:</span>
+        <select class="speed-select" id="speedSelect">
+          <option value="0.75">0.75x</option>
+          <option value="1" selected>1.0x (Normal)</option>
+          <option value="1.25">1.25x</option>
+          <option value="1.5">1.5x</option>
+          <option value="2">2.0x</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="notification" id="toastNotice"></div>
+
+  <!-- Video Logic and Animation Script -->
+  <script>
+    /* =========================================================================
+       SCENE CONFIGURATION & SCRIPT DATA
+       ========================================================================= */
+    const SCENES = [
+      {
+        id: 0,
+        title: "The Fatal Flaw in IPv4: Traditional ARP",
+        subtitle: "RFC 826 Stateless Operation & Blind Trust",
+        duration: 55, // seconds
+        narration: "Every single day, trillions of data packets traverse local networks around the globe. At the foundation of IPv4 communication is ARP — Address Resolution Protocol, created in 1982. Whenever your computer wants to talk to a local IP address, it broadcasts an ARP request: Who has this IP? Whoever replies gets their MAC address written directly into the cache. But traditional ARP carries zero authentication. A host blindly accepts any reply, even one it never requested. This single design flaw opens the door to ARP cache poisoning.",
+        setup: (ctx) => {
+          terminalLog('<span class="term-prompt">user@kali:~$</span> <span class="term-cmd">arp -a</span>', 100);
+          terminalLog('<span class="term-out">? (10.0.0.2) at 00:00:00:00:00:02 [ether] on eth0</span>', 500);
+          terminalLog('<span class="term-warn">[*] NOTICE: Traditional ARP cache accepts unverified unsolicited replies.</span>', 1000);
+        },
+        render: (ctx, t, progress) => {
+          drawTopologyBase(ctx);
+          // H1 sends traditional ARP broadcast to Switch, switch forwards to H2 and H3
+          if (progress < 0.5) {
+            drawPacket(ctx, nodes.h1, nodes.s1, (progress / 0.5), "ARP REQ (Who has 10.0.0.2?)", "#38bdf8");
+            setNodeState(nodes.h1, "Resolving 10.0.0.2...", "#38bdf8");
+          } else {
+            drawPacket(ctx, nodes.h2, nodes.h1, ((progress - 0.5) / 0.5), "ARP REP (10.0.0.2 is 00:02)", "#10b981");
+            setNodeState(nodes.h1, "Cache Updated (Unverified)", "#f59e0b");
+          }
+          drawVulnerabilityCallout(ctx, "NO AUTHENTICATION • NO SIGNATURE • BLIND TRUST");
+        }
+      },
+      {
+        id: 1,
+        title: "Anatomy of an Attack: ARP Poisoning & MITM",
+        subtitle: "Attacker H3 Poisons H1 & H2 to Intercept Traffic",
+        duration: 65,
+        narration: "Here is how the attack works. On our network, we have Host 1 and Host 2. Now enters an attacker: Host 3. Because ARP is stateless and trusting, Host 3 crafts unsolicited, forged ARP replies. Host 3 tells Host 1: I am 10.0.0.2, and my MAC is 00:03. Host 1 accepts this lie and overwrites its cache. Simultaneously, Host 3 tells Host 2: I am 10.0.0.1. Both victim caches are poisoned! When Host 1 sends data to Host 2, all traffic is redirected straight into Host 3's hands, establishing a complete Man-in-the-Middle position.",
+        setup: (ctx) => {
+          terminalLog('<span class="term-prompt">root@attacker-h3:~#</span> <span class="term-cmd">arpspoof -i h3-eth0 -t 10.0.0.1 10.0.0.2</span>', 100);
+          terminalLog('<span class="term-alert">[ATTACK] Sending forged ARP reply: 10.0.0.2 is-at 00:00:00:00:00:03 to 10.0.0.1</span>', 400);
+          terminalLog('<span class="term-prompt">root@attacker-h3:~#</span> <span class="term-cmd">arpspoof -i h3-eth0 -t 10.0.0.2 10.0.0.1</span>', 700);
+          terminalLog('<span class="term-alert">[ATTACK] Sending forged ARP reply: 10.0.0.1 is-at 00:00:00:00:00:03 to 10.0.0.2</span>', 1000);
+          addDetectorLog("HIGH", "ARP_CACHE_POISONING_SUSPECTED", "10.0.0.2: 00:00:00:00:00:02 -> 00:00:00:00:00:03 in 0.42s");
+        },
+        render: (ctx, t, progress) => {
+          drawTopologyBase(ctx);
+          // H3 launches red poisoned packets to H1 and H2
+          let p = (progress * 3) % 1;
+          drawPacket(ctx, nodes.h3, nodes.h1, p, "FORGED ARP REP (10.0.0.2 is H3)", "#ef4444");
+          drawPacket(ctx, nodes.h3, nodes.h2, p, "FORGED ARP REP (10.0.0.1 is H3)", "#ef4444");
+
+          nodes.h1.cache = "10.0.0.2 -> 00:03 [POISONED!]";
+          nodes.h2.cache = "10.0.0.1 -> 00:03 [POISONED!]";
+          setNodeState(nodes.h1, "POISONED", "#ef4444");
+          setNodeState(nodes.h2, "POISONED", "#ef4444");
+          setNodeState(nodes.h3, "MITM INTERCEPTING TRAFFIC", "#ef4444");
+
+          // Draw diverted data stream
+          drawCurvedTraffic(ctx, nodes.h1, nodes.h3, nodes.h2, (t * 2) % 1);
+          drawVulnerabilityCallout(ctx, "🚨 MAN-IN-THE-MIDDLE ESTABLISHED: TRAFFIC HIJACKED");
+        }
+      },
+      {
+        id: 2,
+        title: "Introducing ESARP: The Fortified Architecture",
+        subtitle: "Trusted Authority (TA) & 6 Custom Enhanced ARP Opcodes",
+        duration: 60,
+        narration: "To solve this vulnerability, our project implements ESARP — Enhanced Secure ARP, inspired by the research of Hammouda and Trabelsi, running in Mininet with Python, Scapy, and PyCryptodome. Our virtual network introduces a dedicated guardian: the Trusted Authority on node H4 at 10.0.0.254. Rather than using just two traditional opcodes, ESARP expands the protocol with six specialized operations: Opcode 5 and 6 for registration, Opcode 7 and 8 for enhanced requests and replies, and Opcode 9 and 10 for authoritative verification.",
+        setup: (ctx) => {
+          terminalLog('<span class="term-prompt">mininet></span> <span class="term-cmd">nodes</span>', 100);
+          terminalLog('<span class="term-out">available nodes are: h1 h2 h3 h4 s1</span>', 400);
+          terminalLog('<span class="term-highlight">[*] ESARP CUSTOM OPCODES ACTIVATED:</span>', 800);
+          terminalLog('<span class="term-out">  5: OP_REG_REQ    | 6: OP_REG_REP (ACK)</span>', 1000);
+          terminalLog('<span class="term-out">  7: OP_ARP_REQ    | 8: OP_ARP_REP</span>', 1200);
+          terminalLog('<span class="term-out">  9: OP_VERIFY_REQ | 10: OP_VERIFY_REP</span>', 1400);
+        },
+        render: (ctx, t, progress) => {
+          drawTopologyBase(ctx, true); // Show TA highlighted
+          pulseNode(ctx, nodes.h4, "#00f0ff", t);
+          drawCalloutBox(ctx, 420, 110, 440, 180, "ESARP SECURITY CORE", [
+            "• Central Trusted Authority (TA) on H4 (10.0.0.254)",
+            "• 2048-bit RSA Key Pair (/tmp/esarp_private.pem)",
+            "• Unique 10-byte cryptographic host fingerprints",
+            "• Bidirectional TA verification before cache updates",
+            "• Replay resistance with 8-byte TxID & 5s timeout"
+          ]);
+        }
+      },
+      {
+        id: 3,
+        title: "Cryptographic Enrollment: RSA-OAEP Registration",
+        subtitle: "10-Byte Fingerprints & 2048-bit Encrypted Handshake (Op 5 & 6)",
+        duration: 70,
+        narration: "The defense starts the moment a host joins the network. Each host generates a secret 10-byte random fingerprint — its unique cryptographic identity. Next, the host obtains the Trusted Authority's 2048-bit RSA public key, encrypts its fingerprint using RSA-OAEP into a 256-byte ciphertext, and transmits an Opcode 5 Registration Request. The TA decrypts it, validates that there are no duplicate MACs or IPs, and saves the mapping. The TA then responds with an Opcode 6 Registration Reply containing a SHA-256 hash. The host confirms the hash, and is marked READY.",
+        setup: (ctx) => {
+          terminalLog('<span class="term-prompt">h1#</span> <span class="term-cmd">python3 esarp_host.py --ip 10.0.0.1 --authority-ip 10.0.0.254</span>', 100);
+          terminalLog('<span class="term-out">[HOST] Generated 10-byte fingerprint: c36ae367df2aebc21ceb</span>', 400);
+          terminalLog('<span class="term-out">[HOST] Encrypting with TA RSA Public Key (2048-bit OAEP)... Ciphertext=256 bytes</span>', 700);
+          terminalLog('<span class="term-highlight">[HOST] Sending Opcode 5 (OP_REG_REQ) -> TA (10.0.0.254)</span>', 1000);
+          terminalLog('<span class="term-ok">[TA] Decrypted fingerprint. Registered IP=10.0.0.1, MAC=00:00:00:00:00:01</span>', 1300);
+          terminalLog('<span class="term-ok">[HOST] REGISTRATION SUCCESSFUL (Opcode 6 ACK) -> Host READY</span>', 1600);
+          addPacketDump("ARP Opcode 5", "src=10.0.0.1 dst=10.0.0.254 len=256B (RSA-OAEP Ciphertext)");
+          addPacketDump("ARP Opcode 6", "src=10.0.0.254 dst=10.0.0.1 type=REG_ACK hash=8f12a4b...");
+        },
+        render: (ctx, t, progress) => {
+          drawTopologyBase(ctx, true);
+          let p = (progress * 2) % 1;
+          if (progress < 0.5) {
+            drawPacket(ctx, nodes.h1, nodes.h4, p, "Op 5: REG_REQ (256B RSA-OAEP)", "#a855f7");
+            setNodeState(nodes.h1, "Encrypting Fingerprint...", "#a855f7");
+          } else {
+            drawPacket(ctx, nodes.h4, nodes.h1, p, "Op 6: REG_ACK (SHA-256 Hash)", "#10b981");
+            setNodeState(nodes.h1, "REGISTERED & READY", "#10b981");
+            nodes.h1.registered = true;
+          }
+          drawCalloutBox(ctx, 430, 110, 420, 140, "RSA-OAEP 2048-BIT ENCRYPTION", [
+            "Raw 10-byte Fingerprint -> 256-byte Encrypted Ciphertext",
+            "Only Trusted Authority's private key can decrypt",
+            "Zero eavesdropping possible on local wire",
+            "SHA-256 hash confirms mutual enrollment"
+          ]);
+        }
+      },
+      {
+        id: 4,
+        title: "The 6-Step Secure Resolution Ceremony",
+        subtitle: "Multi-Party Bidirectional Verification (Op 7, 9, 10, 8, 9, 10)",
+        duration: 90,
+        narration: "Now witness secure IP-to-MAC resolution under ESARP. When Host 1 wants to resolve Host 2, it does not use a blind broadcast. It initiates a six-step verification ceremony! In Step 1, Host 1 sends an Opcode 7 Enhanced Request with its transaction ID and a secret fingerprint fragment. In Step 2, Host 2 pauses and asks the TA: Did Host 1 really send this? In Step 3, the TA verifies Host 1's fragment and returns OK. In Step 4, Host 2 sends an Opcode 8 Reply with its own fragment. In Step 5, Host 1 queries the TA to verify Host 2. Finally in Step 6, the TA returns final OK. Only now does Host 1 update its cache with the VERIFIED status!",
+        setup: (ctx) => {
+          terminalLog('<span class="term-prompt">h1 esarp></span> <span class="term-cmd">resolve 10.0.0.2</span>', 100);
+          terminalLog('<span class="term-highlight">[1] ENHANCED ARP REQUEST (Op 7) -> 10.0.0.2 [TxID=f8c12a]</span>', 400);
+          terminalLog('<span class="term-out">[2] H2 queries TA: VERIFY_REQUEST (Op 9) for H1</span>', 700);
+          terminalLog('<span class="term-ok">[3] TA replies to H2: VERIFY_REPLY (Op 10) -> Status: OK</span>', 1000);
+          terminalLog('<span class="term-highlight">[4] H2 sends ENHANCED ARP REPLY (Op 8) -> H1</span>', 1300);
+          terminalLog('<span class="term-out">[5] H1 queries TA: VERIFY_REQUEST (Op 9) for H2</span>', 1600);
+          terminalLog('<span class="term-ok">[6] TA replies to H1: FINAL_VERIFY_REPLY (Op 10) -> Status: OK</span>', 1900);
+          terminalLog('<span class="term-ok">[SUCCESS] SECURE ARP CACHE UPDATED: 10.0.0.2 -> 00:00:00:00:00:02 [VERIFIED]</span>', 2200);
+        },
+        render: (ctx, t, progress) => {
+          drawTopologyBase(ctx, true);
+          let phase = Math.floor(progress * 6);
+          let subP = (progress * 6) % 1;
+
+          if (phase === 0) {
+            drawPacket(ctx, nodes.h1, nodes.h2, subP, "Step 1: Op 7 (Enhanced Req)", "#38bdf8");
+          } else if (phase === 1) {
+            drawPacket(ctx, nodes.h2, nodes.h4, subP, "Step 2: Op 9 (Verify Req H1)", "#f59e0b");
+          } else if (phase === 2) {
+            drawPacket(ctx, nodes.h4, nodes.h2, subP, "Step 3: Op 10 (Verify OK)", "#10b981");
+          } else if (phase === 3) {
+            drawPacket(ctx, nodes.h2, nodes.h1, subP, "Step 4: Op 8 (Enhanced Rep)", "#38bdf8");
+          } else if (phase === 4) {
+            drawPacket(ctx, nodes.h1, nodes.h4, subP, "Step 5: Op 9 (Verify Req H2)", "#f59e0b");
+          } else {
+            drawPacket(ctx, nodes.h4, nodes.h1, subP, "Step 6: Op 10 (Final OK)", "#10b981");
+            nodes.h1.cache = "10.0.0.2 -> 00:02 [VERIFIED]";
+            setNodeState(nodes.h1, "CACHE [VERIFIED]", "#10b981");
+          }
+
+          drawCalloutBox(ctx, 410, 85, 460, 165, "THE 6-STEP VERIFICATION CEREMONY", [
+            "1. H1 -> H2 : Op 7 Enhanced ARP Request (TxID + Fragment)",
+            "2. H2 -> TA : Op 9 Verification Request (Checks H1 with TA)",
+            "3. TA -> H2 : Op 10 Verification Reply (TA confirms H1)",
+            "4. H2 -> H1 : Op 8 Enhanced ARP Reply (H2 MAC + Fragment)",
+            "5. H1 -> TA : Op 9 Verification Request (Checks H2 with TA)",
+            "6. TA -> H1 : Op 10 Final Reply -> Cache updated with [VERIFIED]"
+          ]);
+        }
+      },
+      {
+        id: 5,
+        title: "Live Defense: Attacker Spoofing Defeated",
+        subtitle: "Fingerprint Mismatch at TA -> REQUEST/REPLY SPOOF REJECTED",
+        duration: 65,
+        narration: "Now let's test our live adversary, Host 3. Host 3 attempts an impersonation attack, sending a forged reply claiming 10.0.0.2 belongs to its MAC address. In standard ARP, Host 1 would be compromised. But in ESARP, Host 1 asks the Trusted Authority for verification. Because Host 3 does not possess Host 2's secret fingerprint, the fragment it provides fails cryptographic comparison at the TA. The TA immediately responds: REPLY SPOOF REJECTED! Host 1 discards the packet, and its cache remains clean and untouched.",
+        setup: (ctx) => {
+          terminalLog('<span class="term-alert">[ATTACK] Host 3 sends forged Opcode 8 reply for 10.0.0.2</span>', 100);
+          terminalLog('<span class="term-out">[HOST 1] Received reply -> Sending Opcode 9 verification to TA</span>', 400);
+          terminalLog('<span class="term-alert">[TA] WARNING: Fingerprint mismatch! Stored=0x7b, Received=0xaa</span>', 700);
+          terminalLog('<span class="term-alert">[TA] >>> REPLY SPOOF REJECTED for IP 10.0.0.2 <<<</span>', 1000);
+          terminalLog('<span class="term-ok">[HOST 1] Verification failed. Spoofed packet discarded. Cache protected!</span>', 1300);
+          addDetectorLog("CRITICAL", "REPLY_SPOOF_REJECTED", "Fingerprint mismatch for 10.0.0.2 from 00:00:00:00:00:03");
+        },
+        render: (ctx, t, progress) => {
+          drawTopologyBase(ctx, true);
+          let p = (progress * 2) % 1;
+          if (progress < 0.4) {
+            drawPacket(ctx, nodes.h3, nodes.h1, p, "FORGED Op 8 (Fake Fragment)", "#ef4444");
+            setNodeState(nodes.h3, "SPOOFING H2...", "#ef4444");
+          } else if (progress < 0.7) {
+            drawPacket(ctx, nodes.h1, nodes.h4, p, "Op 9: Verify H3 Claim", "#f59e0b");
+          } else {
+            drawPacket(ctx, nodes.h4, nodes.h1, p, "Op 10: Status REJECT!", "#ef4444");
+            setNodeState(nodes.h4, "SPOOF REJECTED!", "#ef4444");
+            setNodeState(nodes.h1, "Cache UNTOUCHED", "#10b981");
+          }
+          drawVulnerabilityCallout(ctx, "🛡️ DEFENSE ACTIVE: ATTACKER REJECTED BY TA. ZERO POISONING.");
+        }
+      },
+      {
+        id: 6,
+        title: "The Watchdog: Multi-Vector Real-Time Detection",
+        subtitle: "Scapy-Powered Continuous Traffic Sniffing (realtime_detector.py)",
+        duration: 70,
+        narration: "While ESARP provides proactive prevention, defense in depth demands continuous behavioral monitoring. For this, our project deploys realtime_detector.py — an asynchronous network watchdog powered by Scapy. Sniffing ARP frames in real time, it checks for six distinct attack signatures: Static Binding Violations against hosts.csv, Multiple MACs for a single IP, Rapid MAC changes, Gratuitous ARP announcements, Ethernet and ARP MAC mismatches, and ARP request flooding over 20 requests per second.",
+        setup: (ctx) => {
+          terminalLog('<span class="term-prompt">root@kali:~#</span> <span class="term-cmd">python3 realtime_detector.py --iface s1-eth1 --static-map hosts.csv</span>', 100);
+          terminalLog('<span class="term-highlight">[arp-guard] Monitoring ARP frames on s1-eth1 (Window: 5s, Rate Limit: 20/s)</span>', 400);
+          addDetectorLog("CRITICAL", "STATIC_BINDING_VIOLATION", "10.0.0.1 claimed by 00:00:00:00:00:03; expected 00:00:00:00:00:01");
+          addDetectorLog("HIGH", "MULTIPLE_MACS_FOR_IP", "10.0.0.2 has MACs: ['00:00:00:00:00:02', '00:00:00:00:00:03']");
+          addDetectorLog("MEDIUM", "ETHERNET_ARP_MAC_MISMATCH", "Ethernet=00:00:00:00:00:03, ARP=00:00:00:00:00:02");
+          addDetectorLog("HIGH", "ARP_REQUEST_FLOOD", "More than 20 ARP requests/sec observed");
+        },
+        render: (ctx, t, progress) => {
+          drawTopologyBase(ctx, true);
+          drawRadarSweep(ctx, nodes.s1, t);
+          drawCalloutBox(ctx, 420, 80, 440, 200, "REAL-TIME DETECTION VECTORS", [
+            "1. STATIC_BINDING_VIOLATION: IP mapped to non-CSV MAC (Critical)",
+            "2. MULTIPLE_MACS_FOR_IP: Same IP paired with multiple MACs (High)",
+            "3. RAPID_MAC_CHANGE: Mapping shifts within 5s sliding window (High)",
+            "4. GRATUITOUS_ARP_REPLY: Unsolicited announcement pdst==psrc (Medium)",
+            "5. ETHERNET_ARP_MAC_MISMATCH: Frame src MAC != ARP sender (Medium)",
+            "6. ARP_REQUEST_FLOOD: Requests exceed 20 packets/sec (High)"
+          ]);
+        }
+      },
+      {
+        id: 7,
+        title: "Live Hands-On Demo: Mininet CLI & Packet Capture",
+        subtitle: "Kali Linux Walkthrough: resolve, cache, status, and tcpdump",
+        duration: 75,
+        narration: "Let's see this running live in our Kali Linux virtual lab. We launch Mininet using our topology script. The Trusted Authority boots on H4 and generates its RSA key pair. Hosts H1, H2, and H3 start, register their fingerprints, and report Host READY. From H1's prompt, we run resolve 10.0.0.2. In seconds, all 6 verification messages complete, and H1 updates its cache with the VERIFIED status. Running tcpdump captures the raw packet trace, showing opcodes 5 through 10 moving across the wire.",
+        setup: (ctx) => {
+          terminalLog('<span class="term-prompt">mininet></span> <span class="term-cmd">h1 resolve 10.0.0.2</span>', 100);
+          terminalLog('<span class="term-ok">SECURE ARP CACHE UPDATED: 10.0.0.2 -> 00:00:00:00:00:02 [VERIFIED]</span>', 400);
+          terminalLog('<span class="term-prompt">h1 esarp></span> <span class="term-cmd">cache</span>', 700);
+          terminalLog('<span class="term-out">Verified ARP cache: {\'10.0.0.2\': \'00:00:00:00:00:02\'}</span>', 900);
+          terminalLog('<span class="term-prompt">h1 esarp></span> <span class="term-cmd">fingerprint</span>', 1100);
+          terminalLog('<span class="term-out">Fingerprint: c36ae367df2aebc21ceb</span>', 1300);
+          terminalLog('<span class="term-prompt">h1 esarp></span> <span class="term-cmd">pending</span>', 1500);
+          terminalLog('<span class="term-out">Pending: {} (All transactions clean)</span>', 1700);
+          addPacketDump("0x0000", "00 00 00 00 00 02 00 00 00 00 00 01 08 06 00 01");
+          addPacketDump("0x0010", "08 00 06 04 00 07 00 00 00 00 00 01 0a 00 00 01");
+          addPacketDump("0x0020", "7b 22 74 79 70 65 22 3a 22 41 52 50 5f 52 45 51");
+        },
+        render: (ctx, t, progress) => {
+          drawTopologyBase(ctx, true);
+          drawCalloutBox(ctx, 420, 100, 440, 170, "VERIFICATION COMMANDS (FROM SETUP PDF)", [
+            "• resolve 10.0.0.2  -> Initiates 6-step bidirectional exchange",
+            "• cache             -> Displays verified entries with [VERIFIED]",
+            "• status            -> Confirms IP, MAC, and registered=True",
+            "• fingerprint       -> Shows unique 10-byte cryptographic ID",
+            "• pending           -> Returns {} confirming clean transaction state",
+            "• sudo tcpdump -XX arp -> Full packet-level hex confirmation"
+          ]);
+          setNodeState(nodes.h1, "Cache: 10.0.0.2 [VERIFIED]", "#10b981");
+          setNodeState(nodes.h2, "Cache: 10.0.0.1 [VERIFIED]", "#10b981");
+        }
+      },
+      {
+        id: 8,
+        title: "Conclusion: Closing the 40-Year Ethernet Gap",
+        subtitle: "Cryptographic Ground Truth Over Blind Trust",
+        duration: 45,
+        narration: "For over four decades, local area networks have relied on blind trust. With ESARP, that trust is replaced by cryptographic proof. By unifying 2048-bit RSA registration, unique host fingerprints, a Trusted Authority, sequence-tracked transactions, and real-time behavioral intrusion detection, our implementation proves that ARP poisoning can be eliminated without disrupting network usability. We have brought the theoretical promise of the research paper into a working, testable reality.",
+        setup: (ctx) => {
+          terminalLog('<span class="term-ok">=====================================================</span>', 100);
+          terminalLog('<span class="term-ok">ESARP IMPLEMENTATION & VERIFICATION COMPLETE</span>', 300);
+          terminalLog('<span class="term-out">  ✓ Zero unauthenticated mappings accepted</span>', 500);
+          terminalLog('<span class="term-out">  ✓ Attacker spoofing rejected live at TA</span>', 700);
+          terminalLog('<span class="term-out">  ✓ Replay attacks neutralized by transaction timeouts</span>', 900);
+          terminalLog('<span class="term-out">  ✓ Real-time detector sniffing 6 threat signatures</span>', 1100);
+          terminalLog('<span class="term-ok">=====================================================</span>', 1300);
+        },
+        render: (ctx, t, progress) => {
+          drawTopologyBase(ctx, true);
+          drawShieldBanner(ctx, 640, 200, "ESARP: SECURE & VERIFIED");
+          drawCalloutBox(ctx, 390, 250, 500, 140, "SUMMARY OF ACHIEVEMENTS", [
+            "✔ 100% Protection against ARP Poisoning and MITM attacks",
+            "✔ Zero false trust: only TA-approved mappings enter cache",
+            "✔ Complete Scapy/Mininet prototype evaluated with live packets",
+            "✔ Multi-vector detection provides defense in depth for the entire LAN"
+          ]);
+        }
+      }
+    ];
+
+    /* =========================================================================
+       CANVAS & TOPOLOGY RENDERING ENGINE
+       ========================================================================= */
+    const canvas = document.getElementById("stageCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const nodes = {
+      h1: { x: 180, y: 150, ip: "10.0.0.1", mac: "00:00:00:00:00:01", label: "Host H1 (Victim A)", state: "Ready", color: "#38bdf8", cache: "Clean" },
+      h2: { x: 1100, y: 150, ip: "10.0.0.2", mac: "00:00:00:00:00:02", label: "Host H2 (Victim B)", state: "Ready", color: "#38bdf8", cache: "Clean" },
+      h3: { x: 180, y: 550, ip: "10.0.0.3", mac: "00:00:00:00:00:03", label: "Host H3 (Attacker)", state: "Malicious", color: "#ef4444", cache: "N/A" },
+      h4: { x: 1100, y: 550, ip: "10.0.0.254", mac: "00:00:00:00:00:04", label: "H4: Trusted Authority (TA)", state: "Active", color: "#00f0ff", cache: "TA Database" },
+      s1: { x: 640, y: 350, label: "Open vSwitch (S1)", state: "L2 Standalone", color: "#64748b" }
+    };
+
+    function drawTopologyBase(ctx, showTA = false) {
+      ctx.fillStyle = "#05080e";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw subtle grid
+      ctx.strokeStyle = "#0d1527";
+      ctx.lineWidth = 1;
+      for (let x = 0; x < canvas.width; x += 40) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += 40) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+      }
+
+      // Draw links
+      drawLink(ctx, nodes.h1, nodes.s1, "#1e293b");
+      drawLink(ctx, nodes.h2, nodes.s1, "#1e293b");
+      drawLink(ctx, nodes.h3, nodes.s1, "#1e293b");
+      drawLink(ctx, nodes.h4, nodes.s1, showTA ? "#00f0ff44" : "#1e293b");
+
+      // Draw Switch S1
+      drawSwitchNode(ctx, nodes.s1);
+
+      // Draw Host Nodes
+      drawHostNode(ctx, nodes.h1, "💻");
+      drawHostNode(ctx, nodes.h2, "🖥️");
+      drawHostNode(ctx, nodes.h3, "🥷");
+      drawHostNode(ctx, nodes.h4, "🛡️", showTA);
+    }
+
+    function drawLink(ctx, n1, n2, color) {
+      ctx.beginPath();
+      ctx.moveTo(n1.x, n1.y);
+      ctx.lineTo(n2.x, n2.y);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    }
+
+    function drawHostNode(ctx, node, icon, isHighlighted = false) {
+      // Glow
+      if (isHighlighted) {
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, 48, 0, Math.PI * 2);
+        ctx.fillStyle = node.color + "22";
+        ctx.fill();
+      }
+
+      // Main circle
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, 36, 0, Math.PI * 2);
+      ctx.fillStyle = "#0f172a";
+      ctx.fill();
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = node.color;
+      ctx.stroke();
+
+      // Icon
+      ctx.font = "24px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(icon, node.x, node.y - 2);
+
+      // Label & IP
+      ctx.font = "bold 13px sans-serif";
+      ctx.fillStyle = "#f8fafc";
+      ctx.fillText(node.label, node.x, node.y + 54);
+
+      ctx.font = "11px monospace";
+      ctx.fillStyle = "#94a3b8";
+      ctx.fillText(node.ip + " | " + node.mac, node.x, node.y + 70);
+
+      // Cache / State Badge
+      if (node.cache && node.cache !== "N/A") {
+        ctx.font = "bold 10px monospace";
+        ctx.fillStyle = node.cache.includes("POISONED") ? "#ef4444" : (node.cache.includes("VERIFIED") ? "#10b981" : "#64748b");
+        ctx.fillText("Cache: " + node.cache, node.x, node.y + 86);
+      }
+    }
+
+    function drawSwitchNode(ctx, sw) {
+      ctx.fillStyle = "#1e293b";
+      ctx.fillRect(sw.x - 70, sw.y - 30, 140, 60);
+      ctx.strokeStyle = "#38bdf8";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(sw.x - 70, sw.y - 30, 140, 60);
+
+      ctx.fillStyle = "#38bdf8";
+      ctx.font = "bold 14px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Open vSwitch", sw.x, sw.y - 4);
+
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "10px monospace";
+      ctx.fillText("Standalone L2 Switch", sw.x, sw.y + 14);
+    }
+
+    function drawPacket(ctx, fromNode, toNode, progress, label, color) {
+      // Packets transit via Switch S1
+      let currentX, currentY;
+      if (fromNode === nodes.s1 || toNode === nodes.s1) {
+        currentX = fromNode.x + (toNode.x - fromNode.x) * progress;
+        currentY = fromNode.y + (toNode.y - fromNode.y) * progress;
+      } else {
+        // Two-leg path: From -> S1 -> To
+        if (progress < 0.5) {
+          let p = progress * 2;
+          currentX = fromNode.x + (nodes.s1.x - fromNode.x) * p;
+          currentY = fromNode.y + (nodes.s1.y - fromNode.y) * p;
+        } else {
+          let p = (progress - 0.5) * 2;
+          currentX = nodes.s1.x + (toNode.x - nodes.s1.x) * p;
+          currentY = nodes.s1.y + (toNode.y - nodes.s1.y) * p;
+        }
+      }
+
+      // Glow & Packet Body
+      ctx.beginPath();
+      ctx.arc(currentX, currentY, 10, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 12;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Label Tag
+      ctx.fillStyle = "rgba(5, 8, 14, 0.85)";
+      let tagWidth = ctx.measureText(label).width + 16;
+      ctx.fillRect(currentX - tagWidth / 2, currentY - 26, tagWidth, 20);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(currentX - tagWidth / 2, currentY - 26, tagWidth, 20);
+
+      ctx.font = "bold 10px monospace";
+      ctx.fillStyle = color;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(label, currentX, currentY - 16);
+    }
+
+    function drawCurvedTraffic(ctx, n1, nAttacker, n2, progress) {
+      // Animate stolen packets from H1 -> H3 -> H2
+      let p1 = n1;
+      let p2 = nAttacker;
+      let p3 = n2;
+
+      let t = progress;
+      let x = (1-t)*(1-t)*p1.x + 2*(1-t)*t*p2.x + t*t*p3.x;
+      let y = (1-t)*(1-t)*p1.y + 2*(1-t)*t*p2.y + t*t*p3.y;
+
+      ctx.beginPath();
+      ctx.arc(x, y, 7, 0, Math.PI * 2);
+      ctx.fillStyle = "#ef4444";
+      ctx.fill();
+    }
+
+    function drawRadarSweep(ctx, center, t) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(center.x, center.y, 220, 0, Math.PI * 2);
+      ctx.strokeStyle = "#10b98133";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      let angle = (t * 2) % (Math.PI * 2);
+      ctx.beginPath();
+      ctx.moveTo(center.x, center.y);
+      ctx.arc(center.x, center.y, 220, angle, angle + 0.5);
+      ctx.closePath();
+      ctx.fillStyle = "rgba(16, 185, 129, 0.15)";
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function pulseNode(ctx, node, color, t) {
+      let r = 40 + Math.sin(t * 5) * 8;
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, r, 0, Math.PI * 2);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    function drawCalloutBox(ctx, x, y, w, h, title, items) {
+      ctx.save();
+      ctx.fillStyle = "rgba(13, 21, 36, 0.92)";
+      ctx.fillRect(x, y, w, h);
+      ctx.strokeStyle = "#203152";
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(x, y, w, h);
+
+      // Title
+      ctx.font = "bold 13px sans-serif";
+      ctx.fillStyle = "#00f0ff";
+      ctx.textAlign = "left";
+      ctx.fillText(title, x + 16, y + 24);
+
+      // Items
+      ctx.font = "11.5px sans-serif";
+      ctx.fillStyle = "#e2e8f0";
+      let curY = y + 48;
+      for (let item of items) {
+        ctx.fillText(item, x + 16, curY);
+        curY += 22;
+      }
+      ctx.restore();
+    }
+
+    function drawVulnerabilityCallout(ctx, text) {
+      ctx.save();
+      ctx.fillStyle = "rgba(239, 68, 68, 0.15)";
+      ctx.fillRect(340, 30, 600, 36);
+      ctx.strokeStyle = "#ef4444";
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(340, 30, 600, 36);
+
+      ctx.font = "bold 13px sans-serif";
+      ctx.fillStyle = "#fca5a5";
+      ctx.textAlign = "center";
+      ctx.fillText(text, 640, 52);
+      ctx.restore();
+    }
+
+    function drawShieldBanner(ctx, x, y, text) {
+      ctx.save();
+      ctx.fillStyle = "rgba(16, 185, 129, 0.2)";
+      ctx.fillRect(x - 220, y - 24, 440, 48);
+      ctx.strokeStyle = "#10b981";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x - 220, y - 24, 440, 48);
+
+      ctx.font = "bold 16px sans-serif";
+      ctx.fillStyle = "#34d399";
+      ctx.textAlign = "center";
+      ctx.fillText(text, x, y + 6);
+      ctx.restore();
+    }
+
+    function setNodeState(node, state, color) {
+      node.state = state;
+      if (color) node.color = color;
+    }
+
+    /* =========================================================================
+       AUDIO & WEB SPEECH SYNTHESIS ENGINE
+       ========================================================================= */
+    let voiceEnabled = true;
+    let synth = window.speechSynthesis;
+    let currentUtterance = null;
+
+    function speakNarration(text) {
+      if (!voiceEnabled || !synth) return;
+      synth.cancel(); // Stop any pending speech
+
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = parseFloat(document.getElementById("speedSelect").value) || 1.0;
+      u.pitch = 1.0;
+
+      // Select an English voice if available
+      const voices = synth.getVoices();
+      const preferredVoice = voices.find(v => v.lang.startsWith("en") && (v.name.includes("Natural") || v.name.includes("Google") || v.name.includes("Samantha") || v.name.includes("Daniel")));
+      if (preferredVoice) u.voice = preferredVoice;
+
+      currentUtterance = u;
+      synth.speak(u);
+    }
+
+    function stopSpeech() {
+      if (synth) synth.cancel();
+    }
+
+    /* =========================================================================
+       TIMELINE & PLAYBACK STATE CONTROLLER
+       ========================================================================= */
+    let isPlaying = false;
+    let currentSceneIdx = 0;
+    let sceneStartTime = 0;
+    let sceneElapsed = 0;
+    let playbackSpeed = 1.0;
+    let animationFrameId = null;
+    let totalTimelineSeconds = SCENES.reduce((acc, s) => acc + s.duration, 0);
+
+    const playBtn = document.getElementById("playBtn");
+    const scrubberFill = document.getElementById("scrubberFill");
+    const timeBadge = document.getElementById("timeBadge");
+    const sceneDropdown = document.getElementById("sceneDropdown");
+    const subtitleBox = document.getElementById("subtitleBox");
+    const sceneTag = document.getElementById("sceneTag");
+    const sceneTitle = document.getElementById("sceneTitle");
+    const sceneSubtitle = document.getElementById("sceneSubtitle");
+    const scenePhaseBadge = document.getElementById("scenePhaseBadge");
+
+    // Populate scene dropdown & markers
+    const sceneMarkers = document.getElementById("sceneMarkers");
+    let accumulatedTime = 0;
+    SCENES.forEach((scene, i) => {
+      // Dropdown option
+      let opt = document.createElement("option");
+      opt.value = i;
+      opt.textContent = `Scene ${i+1}: ${scene.title}`;
+      sceneDropdown.appendChild(opt);
+
+      // Scrubber marker tick
+      let pct = (accumulatedTime / totalTimelineSeconds) * 100;
+      let tick = document.createElement("div");
+      tick.className = "scene-tick";
+      tick.style.left = pct + "%";
+      sceneMarkers.appendChild(tick);
+
+      accumulatedTime += scene.duration;
+    });
+
+    function getTimelineCurrentSeconds() {
+      let prior = 0;
+      for (let i = 0; i < currentSceneIdx; i++) {
+        prior += SCENES[i].duration;
+      }
+      return prior + sceneElapsed;
+    }
+
+    function formatTime(secs) {
+      let m = Math.floor(secs / 60);
+      let s = Math.floor(secs % 60);
+      return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    function updateHUD() {
+      let currentSecs = getTimelineCurrentSeconds();
+      let pct = (currentSecs / totalTimelineSeconds) * 100;
+      scrubberFill.style.width = pct + "%";
+      timeBadge.textContent = `${formatTime(currentSecs)} / ${formatTime(totalTimelineSeconds)}`;
+
+      let scene = SCENES[currentSceneIdx];
+      sceneTag.textContent = `SCENE ${currentSceneIdx + 1}`;
+      sceneTitle.textContent = scene.title;
+      sceneSubtitle.textContent = scene.subtitle;
+      sceneDropdown.value = currentSceneIdx;
+      subtitleBox.textContent = scene.narration;
+    }
+
+    function loadScene(idx, autoPlay = true) {
+      currentSceneIdx = idx;
+      sceneElapsed = 0;
+      sceneStartTime = performance.now();
+
+      // Reset node states
+      nodes.h1.cache = "Clean";
+      nodes.h2.cache = "Clean";
+      nodes.h1.color = "#38bdf8";
+      nodes.h2.color = "#38bdf8";
+      nodes.h3.color = "#ef4444";
+      nodes.h4.color = "#00f0ff";
+
+      clearTerminalLogs();
+      SCENES[idx].setup(ctx);
+      updateHUD();
+
+      if (autoPlay && isPlaying) {
+        speakNarration(SCENES[idx].narration);
+      }
+    }
+
+    function tick(timestamp) {
+      if (!isPlaying) return;
+
+      let delta = (timestamp - sceneStartTime) / 1000 * playbackSpeed;
+      sceneStartTime = timestamp;
+      sceneElapsed += delta;
+
+      let currentScene = SCENES[currentSceneIdx];
+      let progress = Math.min(sceneElapsed / currentScene.duration, 1.0);
+
+      // Render scene frame
+      currentScene.render(ctx, sceneElapsed, progress);
+
+      updateHUD();
+
+      if (sceneElapsed >= currentScene.duration) {
+        if (currentSceneIdx < SCENES.length - 1) {
+          loadScene(currentSceneIdx + 1, true);
+        } else {
+          // Finished entire presentation
+          pausePlayback();
+          showToast("Demonstration & Video Presentation Complete!");
+          return;
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(tick);
+    }
+
+    function startPlayback() {
+      isPlaying = true;
+      playBtn.textContent = "⏸";
+      sceneStartTime = performance.now();
+      speakNarration(SCENES[currentSceneIdx].narration);
+      animationFrameId = requestAnimationFrame(tick);
+    }
+
+    function pausePlayback() {
+      isPlaying = false;
+      playBtn.textContent = "▶";
+      stopSpeech();
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    }
+
+    playBtn.addEventListener("click", () => {
+      if (isPlaying) pausePlayback();
+      else startPlayback();
+    });
+
+    document.getElementById("prevSceneBtn").addEventListener("click", () => {
+      let target = Math.max(0, currentSceneIdx - 1);
+      loadScene(target, isPlaying);
+    });
+
+    document.getElementById("nextSceneBtn").addEventListener("click", () => {
+      let target = Math.min(SCENES.length - 1, currentSceneIdx + 1);
+      loadScene(target, isPlaying);
+    });
+
+    sceneDropdown.addEventListener("change", (e) => {
+      loadScene(parseInt(e.target.value), isPlaying);
+    });
+
+    document.getElementById("speedSelect").addEventListener("change", (e) => {
+      playbackSpeed = parseFloat(e.target.value);
+      if (isPlaying) {
+        speakNarration(SCENES[currentSceneIdx].narration);
+      }
+    });
+
+    document.getElementById("scrubberWrap").addEventListener("click", (e) => {
+      let rect = e.currentTarget.getBoundingClientRect();
+      let clickX = e.clientX - rect.left;
+      let ratio = clickX / rect.width;
+      let targetSecs = ratio * totalTimelineSeconds;
+
+      // Find corresponding scene
+      let acc = 0;
+      for (let i = 0; i < SCENES.length; i++) {
+        if (targetSecs <= acc + SCENES[i].duration || i === SCENES.length - 1) {
+          currentSceneIdx = i;
+          sceneElapsed = targetSecs - acc;
+          loadScene(currentSceneIdx, isPlaying);
+          break;
+        }
+        acc += SCENES[i].duration;
+      }
+    });
+
+    // Voice toggle
+    const toggleVoiceBtn = document.getElementById("toggleVoiceBtn");
+    const voiceIcon = document.getElementById("voiceIcon");
+    const voiceLabel = document.getElementById("voiceLabel");
+    toggleVoiceBtn.addEventListener("click", () => {
+      voiceEnabled = !voiceEnabled;
+      if (!voiceEnabled) {
+        stopSpeech();
+        voiceIcon.textContent = "🔇";
+        voiceLabel.textContent = "Voiceover: OFF";
+      } else {
+        voiceIcon.textContent = "🔊";
+        voiceLabel.textContent = "Voiceover: ON";
+        if (isPlaying) speakNarration(SCENES[currentSceneIdx].narration);
+      }
+    });
+
+    // Fullscreen toggle
+    document.getElementById("fullScreenBtn").addEventListener("click", () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    });
+
+    /* =========================================================================
+       TERMINAL & TAB MANAGEMENT
+       ========================================================================= */
+    const tabBtns = document.querySelectorAll(".tab-btn");
+    tabBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        tabBtns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const tab = btn.getAttribute("data-tab");
+        document.getElementById("tab-terminal").style.display = tab === "terminal" ? "block" : "none";
+        document.getElementById("tab-detector").style.display = tab === "detector" ? "block" : "none";
+        document.getElementById("tab-packets").style.display = tab === "packets" ? "block" : "none";
+        document.getElementById("tab-matrix").style.display = tab === "matrix" ? "block" : "none";
+      });
+    });
+
+    const termLogs = document.getElementById("termLogs");
+    const detectorLogs = document.getElementById("detectorLogs");
+    const packetLogs = document.getElementById("packetLogs");
+
+    function terminalLog(html, delay = 0) {
+      setTimeout(() => {
+        let div = document.createElement("div");
+        div.innerHTML = html;
+        termLogs.appendChild(div);
+        termLogs.parentElement.scrollTop = termLogs.parentElement.scrollHeight;
+      }, delay);
+    }
+
+    function addDetectorLog(level, kind, msg) {
+      let div = document.createElement("div");
+      div.style.marginBottom = "6px";
+      div.innerHTML = `<span style="color:${level === 'CRITICAL' ? '#ef4444' : '#f59e0b'}; font-weight:bold;">[${level}] ${kind}:</span> <span style="color:#e2e8f0;">${msg}</span>`;
+      detectorLogs.appendChild(div);
+    }
+
+    function addPacketDump(tag, content) {
+      let div = document.createElement("div");
+      div.style.marginBottom = "6px";
+      div.innerHTML = `<span style="color:#38bdf8; font-weight:bold;">${tag}</span> | <span style="color:#cbd5e1;">${content}</span>`;
+      packetLogs.appendChild(div);
+    }
+
+    function clearTerminalLogs() {
+      termLogs.innerHTML = "";
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toastNotice");
+      toast.textContent = msg;
+      toast.style.display = "block";
+      setTimeout(() => { toast.style.display = "none"; }, 4500);
+    }
+
+    /* =========================================================================
+       1-CLICK CANVAS VIDEO RECORDING & EXPORT (WebM / MP4)
+       ========================================================================= */
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let isRecording = false;
+    const recordBtn = document.getElementById("recordVideoBtn");
+    const recordLabel = document.getElementById("recordLabel");
+
+    recordBtn.addEventListener("click", () => {
+      if (!isRecording) {
+        startVideoRecording();
+      } else {
+        stopVideoRecording();
+      }
+    });
+
+    function startVideoRecording() {
+      try {
+        const stream = canvas.captureStream(30); // 30 FPS
+        recordedChunks = [];
+
+        let options = { mimeType: 'video/webm;codecs=vp9' };
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          options = { mimeType: 'video/webm' };
+        }
+
+        mediaRecorder = new MediaRecorder(stream, options);
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) recordedChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: 'video/webm' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'ESARP_ARP_Poisoning_Prevention_Video.webm';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          showToast("Video exported and downloaded successfully!");
+        };
+
+        mediaRecorder.start();
+        isRecording = true;
+        recordBtn.classList.add("recording");
+        recordLabel.textContent = "Recording... Click to Stop & Save";
+        showToast("Recording canvas stream... Play through scenes, then click to save video.");
+      } catch (err) {
+        alert("Video recording could not start: " + err.message);
+      }
+    }
+
+    function stopVideoRecording() {
+      if (mediaRecorder && mediaRecorder.state !== "inactive") {
+        mediaRecorder.stop();
+        isRecording = false;
+        recordBtn.classList.remove("recording");
+        recordLabel.textContent = "Record Video (.webm)";
+      }
+    }
+
+    // Initialize first scene
+    loadScene(0, false);
+    SCENES[0].render(ctx, 0, 0);
+  </script>
+</body>
+</html>
