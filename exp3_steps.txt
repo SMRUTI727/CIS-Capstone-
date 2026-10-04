@@ -1,0 +1,530 @@
+
+PART A — Create the Website on Your Computer
+Step 1 — Open Command Prompt
+
+Open Command Prompt (CMD).
+
+
+Go to your Downloads folder:
+
+cd %USERPROFILE%\Downloads
+
+Create a folder for the practical:
+
+mkdir static-website
+
+Enter the folder:
+
+cd static-website
+
+Check your location:
+
+cd
+
+You should get something like:
+
+C:\Users\SMRUTI\Downloads\static-website
+PART B — Create index.html
+Step 2 — Create the HTML file
+
+Run:
+
+notepad index.html
+
+If Windows asks:
+
+Do you want to create a new file?
+
+Click Yes.
+
+Paste this:
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My AWS Static Website</title>
+</head>
+<body>
+
+    <h1>Welcome to My AWS Static Website</h1>
+
+    <p>This website is stored in Amazon S3.</p>
+
+    <p>Version 1 of my website.</p>
+
+</body>
+</html>
+
+Save the file and close Notepad.
+
+Step 3 — Check the file
+
+Run:
+
+dir
+
+You should see:
+
+index.html
+
+You can also check the contents:
+
+type index.html
+
+You should see your HTML code.
+
+PART C — Create Git Repository
+Step 4 — Initialize Git
+
+Run:
+
+git init
+
+You should get something like:
+
+Initialized empty Git repository...
+
+This creates a Git repository for your website.
+
+Step 5 — Configure Git
+
+If you haven't configured Git before, run:
+
+git config --global user.name "Anusha Mallik"
+
+and:
+
+git config --global user.email "anu.mal.rt24@dypatil.edu"
+
+You can verify:
+
+git config --global --list
+PART D — Create Git Version 1
+Step 6 — Check Git status
+
+Run:
+
+git status
+
+You should see something like:
+
+Untracked files:
+    index.html
+
+This means Git knows that index.html exists but isn't tracking it yet.
+
+Step 7 — Add the file
+
+Run:
+
+git add index.html
+
+Or:
+
+git add .
+
+Both work here.
+
+Step 8 — Create the first commit
+
+Run:
+
+git commit -m "Initial static website"
+
+You should see a message indicating that one file was committed.
+
+This is Version 1 in Git.
+
+Step 9 — Verify Version 1
+
+Run:
+
+git log --oneline
+
+You should see:
+
+xxxxxxx Initial static website
+
+📸 Take Screenshot 1: git log --oneline
+
+PART E — Create Version 2
+
+Now we'll modify the website.
+
+Step 10 — Edit index.html
+
+Run:
+
+notepad index.html
+
+Change:
+
+<h1>Welcome to My AWS Static Website</h1>
+
+to:
+
+<h1>Welcome to My Updated AWS Static Website</h1>
+
+And change:
+
+<p>Version 1 of my website.</p>
+
+to:
+
+<p>Version 2 of my website.</p>
+
+Your complete file should now be:
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My AWS Static Website</title>
+</head>
+<body>
+
+    <h1>Welcome to My Updated AWS Static Website</h1>
+
+    <p>This website is stored in Amazon S3.</p>
+
+    <p>Version 2 of my website.</p>
+
+</body>
+</html>
+
+Save and close Notepad.
+
+Step 11 — Check what changed
+
+Run:
+
+git status
+
+You should see:
+
+modified: index.html
+Step 12 — Commit Version 2
+
+Run:
+
+git add index.html
+
+Then:
+
+git commit -m "Updated static website"
+
+Now check:
+
+git log --oneline
+
+You should see:
+
+xxxxxxx Updated static website
+xxxxxxx Initial static website
+
+🎉 You now have two Git versions.
+
+📸 Take Screenshot 2: git log --oneline showing both commits.
+
+PART F — Create S3 Bucket
+
+Now move to AWS.
+
+Step 13 — Open Amazon S3
+
+Go to:
+
+AWS Console → S3
+
+Click:
+
+Create bucket
+
+Step 14 — Give the bucket a unique name
+
+For example:
+
+smruti-static-website-2026
+
+But if it already exists, choose another name.
+
+For example:
+
+smruti-static-website-2026-xyz
+
+Choose your required AWS Region.
+
+For example:
+
+Asia Pacific (Mumbai) ap-south-1
+
+Click:
+
+Create bucket
+
+PART G — Enable S3 Versioning
+Step 15 — Enable Versioning
+
+Open your newly created bucket.
+
+Go to:
+
+Properties
+
+Find:
+
+Bucket Versioning
+
+Click:
+
+Edit
+
+Select:
+
+Enable
+
+Click:
+
+Save changes
+
+You should now see:
+
+Bucket Versioning: Enabled
+
+📸 Take Screenshot 3: Versioning enabled.
+
+PART H — Upload Version 1 to S3
+
+⚠️ At this point, your local index.html is currently Version 2.
+
+We want to upload Version 1 first so that we can later upload Version 2 and demonstrate S3 Versioning.
+
+Step 16 — Temporarily restore Git Version 1
+
+Go back to CMD.
+
+Make sure you're inside:
+
+C:\Users\SMRUTI\Downloads\static-website
+
+Run:
+
+git checkout HEAD~1 -- index.html
+
+This changes your local index.html back to the Git Version 1.
+
+You can verify:
+
+type index.html
+
+You should see:
+
+Welcome to My AWS Static Website
+
+and:
+
+Version 1 of my website.
+Step 17 — Upload Version 1 to S3
+
+Go to:
+
+S3 → Your Bucket → Objects
+
+Click:
+
+Upload
+
+Then:
+
+Add files
+
+Select:
+
+index.html
+
+Click:
+
+Upload
+
+Now S3 contains:
+
+index.html
+Version 1
+
+📸 Take Screenshot 4: S3 bucket showing index.html.
+
+PART I — Restore Version 2
+Step 18 — Get Version 2 back
+
+Go back to CMD.
+
+Run:
+
+git checkout HEAD -- index.html
+
+Now your local file is Version 2 again.
+
+Verify:
+
+type index.html
+
+You should see:
+
+Welcome to My Updated AWS Static Website
+
+and:
+
+Version 2 of my website.
+PART J — Upload Version 2
+Step 19 — Upload Version 2 to S3
+
+Go back to:
+
+S3 → Your Bucket → Objects
+
+Click:
+
+Upload
+
+Select your updated:
+
+index.html
+
+Click:
+
+Upload
+
+Because S3 Versioning is enabled, S3 does NOT simply replace Version 1.
+
+Instead:
+
+index.html
+     │
+     ├── Version 1
+     │
+     └── Version 2 ← Latest
+PART K — Verify S3 Versions
+Step 20 — Show versions
+
+Go to:
+
+S3 → Your Bucket → Objects
+
+Turn on:
+
+Show versions
+
+You should see multiple versions of:
+
+index.html
+
+Something like:
+
+index.html     Version ID: abc123
+index.html     Version ID: xyz789
+
+One will be the older version and one will be the latest.
+
+📸 Take Screenshot 5: Show versions with both versions visible.
+
+This is very important evidence for your practical.
+
+PART L — Enable Static Website Hosting
+Step 21 — Configure website hosting
+
+Go to:
+
+S3 → Your Bucket → Properties
+
+Find:
+
+Static website hosting
+
+Click:
+
+Edit
+
+Select:
+
+Enable
+
+Choose:
+
+Host a static website
+
+For:
+
+Index document
+
+enter:
+
+index.html
+
+Click:
+
+Save changes
+
+PART M — Configure Public Access
+
+For a traditional public S3 website endpoint, the browser must be able to read the website object.
+
+Go to:
+
+Permissions
+
+Check:
+
+Block public access
+
+If your practical specifically requires a public website, configure the public-access settings as required by your lab.
+
+Then add a bucket policy allowing s3:GetObject.
+
+Use:
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicReadGetObject",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::YOUR-BUCKET-NAME/*"
+        }
+    ]
+}
+
+Replace:
+
+YOUR-BUCKET-NAME
+
+with your actual bucket name.
+
+⚠️ Only make the bucket public if your practical requires a public website.
+
+PART N — Open the Website
+Step 22 — Find the website endpoint
+
+Go to:
+
+S3 → Bucket → Properties
+
+Find:
+
+Static website hosting
+
+AWS will provide a Bucket website endpoint.
+
+Open that endpoint in your browser.
+
+You should see:
+
+Welcome to My Updated AWS Static Website
+
+and:
+
+This website is stored in Amazon S3.
+
+Version 2 of my website.
+
+📸 Take Screenshot 6: Website running in the browser.
